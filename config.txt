@@ -1,0 +1,25 @@
+# A-Maze-ing - Default Configuration File
+# Lines starting with '#' are ignored
+
+# Maze dimensions (number of cells)
+WIDTH=20
+HEIGHT=15
+
+# Entry and exit coordinates (x,y) — must be inside maze bounds
+ENTRY=0,0
+EXIT=19,14
+
+# Output file for the hex-encoded maze
+OUTPUT_FILE=maze.txt
+
+# Perfect maze: exactly one path between entry and exit (True/False)
+PERFECT=True
+
+# Random seed for reproducibility (integer)
+SEED=42
+
+# Generation algorithm: recursive_backtracker | prim | kruskal
+ALGORITHM=recursive_backtracker
+
+# Display mode: terminal | mlx
+DISPLAY=terminal
