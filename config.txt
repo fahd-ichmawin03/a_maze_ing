@@ -16,7 +16,7 @@ OUTPUT_FILE=maze.txt
 PERFECT=True
 
 # Random seed for reproducibility (integer)
-SEED=42
+#SEED=42
 
 # Generation algorithm: recursive_backtracker | prim | kruskal
 ALGORITHM=recursive_backtracker
