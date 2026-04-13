@@ -1,8 +1,8 @@
 import os
-import sys
 import random
-from mazegen.maze_generator import MazeGenerator, N, E, S, W
+from mazegen.maze_generator import MazeGenerator, S, W
 from config_parser import MazeConfig
+from maze_writer import write_maze
 
 RST = "\033[0m"
 
@@ -24,9 +24,9 @@ PALETTES: list[tuple[tuple[int, int, int], tuple[int, int, int], str]] = [
 ]
 
 C_ENTRY = (127, 119, 221)
-C_EXIT  = (216,  90,  48)
-C_PATH  = (29,  158, 117)
-C_42    = (70,   70,  70)
+C_EXIT = (216,  90,  48)
+C_PATH = (29,  158, 117)
+C_42 = (70,   70,  70)
 
 
 class TerminalRenderer:
@@ -35,6 +35,7 @@ class TerminalRenderer:
         self._cfg = cfg
         self._show_path = False
         self._pal = 0
+        self._local_rng = random.Random(cfg.seed)
 
     def run(self) -> None:
         self._render()
@@ -56,12 +57,17 @@ class TerminalRenderer:
                 print("  Enter 1, 2, 3 or 4.")
 
     def _regenerate(self) -> None:
+        next_seed = self._local_rng.randint(0, 2**31 - 1)
+
         self._gen = MazeGenerator(
-            self._cfg.width, self._cfg.height,
-            self._cfg.entry, self._cfg.exit_,
-            self._cfg.perfect, random.randint(0, 2 ** 31),
+            self._cfg.width,
+            self._cfg.height,
+            self._cfg.entry,
+            self._cfg.exit_,
+            self._cfg.perfect,
+            next_seed
         ).generate()
-        self._show_path = False
+        write_maze(self._gen, self._cfg)
         self._render()
 
     def _render(self) -> None:
@@ -69,7 +75,8 @@ class TerminalRenderer:
         gen = self._gen
         W2, H = gen.width, gen.height
         wall_col, pass_col, pal_name = PALETTES[self._pal]
-        path_set: set[tuple[int, int]] = set(gen.solution) if self._show_path else set()
+        path_set: set[tuple[int, int]] = set(
+            gen.solution) if self._show_path else set()
         wf = _fg(*wall_col)
         lines: list[str] = []
 
@@ -97,8 +104,12 @@ class TerminalRenderer:
             lines.append(row_line + RST)
 
         print("\n".join(lines))
-        steps = f"  path: {len(gen.solution)-1} steps" if self._show_path else ""
-        print(f"\n  {pal_name} | {W2}×{H} | seed {gen.seed}{steps}")
+        steps = f"| {len(gen.solution)-1} steps" if self._show_path else ""
+        print(f"\n  {pal_name} | {W2}×{H} | {steps}")
+
+        if not gen._42_cells:
+            print("[NOTICE] Maze is too small to", end="")
+            print("display the '42' pattern at the center.")
 
     def _cell(
         self,
@@ -110,11 +121,14 @@ class TerminalRenderer:
         if (x, y) == gen.entry:
             return _bg(*C_ENTRY) + "En" + RST
         if (x, y) == gen.exit_:
-            return _bg(*C_EXIT)  + "Ex" + RST
+            return _bg(*C_EXIT) + "Ex" + RST
         if (x, y) in gen._42_cells:
-            return _bg(*C_42)    + "  " + RST
+            return _bg(*C_42) + "  " + RST
+
+        # Le chemin est tracé avec des points clairs '•'
         if (x, y) in path_set:
-            return _bg(*C_PATH)  + "  " + RST
+            return _bg(*pass_col) + _fg(*C_PATH) + " •" + RST
+
         return _bg(*pass_col) + "  " + RST
 
     def _menu(self) -> None:
@@ -123,6 +137,6 @@ class TerminalRenderer:
             f"\n  ==== A-Maze-ing ====\n"
             f"  1. New maze\n"
             f"  2. {lbl}\n"
-            f"  3. Next colour palette\n"
+            f"  3. Next color palette\n"
             f"  4. Quit"
         )

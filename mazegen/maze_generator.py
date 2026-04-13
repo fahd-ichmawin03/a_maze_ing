@@ -4,8 +4,8 @@ from typing import Optional
 
 N, E, S, W = 1, 2, 4, 8
 OPP = {N: S, S: N, E: W, W: E}
-DX  = {N: 0, E: 1, S: 0, W: -1}
-DY  = {N: -1, E: 0, S: 1, W: 0}
+DX = {N: 0, E: 1, S: 0, W: -1}
+DY = {N: -1, E: 0, S: 1, W: 0}
 DIR_LETTER = {N: "N", E: "E", S: "S", W: "W"}
 
 
@@ -46,7 +46,8 @@ class MazeGenerator:
         self.width = width
         self.height = height
         self.entry = entry
-        self.exit_: tuple[int, int] = exit_ if exit_ is not None else (width - 1, height - 1)
+        self.exit_: tuple[
+            int, int] = exit_ if exit_ is not None else (width - 1, height - 1)
         self.perfect = perfect
         self.seed = seed
         self._rng = random.Random(seed)
@@ -79,7 +80,7 @@ class MazeGenerator:
 
     def _compute_42(self) -> None:
         FOUR = ["101", "101", "111", "001", "001"]
-        TWO  = ["111", "001", "111", "100", "111"]
+        TWO = ["111", "001", "111", "100", "111"]
         pw = 7
         if self.width < pw + 4 or self.height < 9:
             print("[INFO] Maze too small for '42' pattern.")
@@ -182,7 +183,9 @@ class MazeGenerator:
     def _bfs(self) -> tuple[list[tuple[int, int]], str]:
         sx, sy = self.entry
         ex, ey = self.exit_
-        prev: dict[tuple[int, int], Optional[tuple[tuple[int, int], int]]] = {(sx, sy): None}
+        prev: dict[
+            tuple[int, int], Optional[tuple[tuple[int, int], int]]
+            ] = {(sx, sy): None}
         q: deque[tuple[int, int]] = deque([(sx, sy)])
         while q:
             x, y = q.popleft()
@@ -219,4 +222,7 @@ class MazeGenerator:
 
     def cell_walls(self, x: int, y: int) -> dict[str, bool]:
         v = self.grid[y][x]
-        return {"N": bool(v & N), "E": bool(v & E), "S": bool(v & S), "W": bool(v & W)}
+        return {
+            "N": bool(v & N),
+            "E": bool(v & E), "S": bool(v & S), "W": bool(v & W)
+            }

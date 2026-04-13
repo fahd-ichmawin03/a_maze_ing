@@ -15,5 +15,7 @@ def write_maze(gen: MazeGenerator, cfg: MazeConfig) -> None:
             f.write(f"{xx},{xy}\n")
             f.write(gen.solution_dirs + "\n")
     except OSError as e:
-        print(f"[ERROR] Cannot write '{cfg.output_file}': {e}", file=sys.stderr)
+        print(
+            f"[ERROR] Cannot write '{cfg.output_file}': {e}", file=sys.stderr
+            )
         raise

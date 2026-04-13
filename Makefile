@@ -1,27 +1,30 @@
-VENV = .venv
-PY   = $(VENV)/bin/python3
-PIP  = $(VENV)/bin/pip
+PYTHON = python3
+MAIN = a_maze_ing.py
+CONFIG = config.txt
 
-.PHONY: install run debug lint clean
+all: run
 
 install:
-	$(PIP) install -q --upgrade pip
-	$(PIP) install -q flake8 mypy build
-	$(PY) -m build --wheel --outdir . -q
-	$(PIP) install -q mazegen-*.whl
+	pip install flake8 mypy
 
 run:
-	$(PY) a_maze_ing.py config.txt
+	$(PYTHON) $(MAIN) $(CONFIG)
 
 debug:
-	$(PY) -m pdb a_maze_ing.py config.txt
-
-lint:
-	$(VENV)/bin/flake8 . --exclude=$(VENV),build
-	$(VENV)/bin/mypy . --ignore-missing-imports --disallow-untyped-defs \
-	    --check-untyped-defs --warn-return-any --warn-unused-ignores \
-	    --exclude "$(VENV)|build"
+	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
 
 clean:
-	find . -name "__pycache__" -not -path "./$(VENV)/*" -exec rm -rf {} + 2>/dev/null || true
-	rm -rf .mypy_cache build mazegen.egg-info mazegen-*.whl
+	rm -rf .mypy_cache
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+
+build:
+	python3 -m build
+	mv dist/* .
+	rm -rf dist
+
+lint:
+	flake8 .
+	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports \
+		--disallow-untyped-defs --check-untyped-defs
+
+.PHONY: all install run debug clean lint

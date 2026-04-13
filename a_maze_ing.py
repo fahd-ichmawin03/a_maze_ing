@@ -37,6 +37,5 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except BaseException:
+    except KeyboardInterrupt:
         print("Exsciting the maze game !")
-
